@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rent Rush Bank</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="board-bg"></div>
+  <div class="app-shell">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Private board-game banking</p>
+        <h1>Rent Rush Bank</h1>
+        <p class="subtitle">A Monopoly-style money hub with secret balances, player payments, colour identities, and full game history.</p>
+      </div>
+      <div class="bank-badge">🏦</div>
+    </header>
+
+    <main>
+      <section id="setupCard" class="card setup-card">
+        <h2>First-time setup</h2>
+        <p>Paste your Supabase project details once. These are saved only on this device.</p>
+        <label>Supabase URL
+          <input id="supabaseUrl" placeholder="https://xxxxx.supabase.co" />
+        </label>
+        <label>Supabase anon key
+          <input id="supabaseKey" placeholder="eyJhbGciOi..." />
+        </label>
+        <button id="saveConfigBtn" class="primary">Save setup</button>
+      </section>
+
+      <section id="homeCard" class="card hidden">
+        <div class="top-row">
+          <div>
+            <p class="eyebrow dark">Game lobby</p>
+            <h2>Open or create a game</h2>
+          </div>
+          <button id="changeConfigBtn" class="ghost">Change setup</button>
+        </div>
+        <label>Game code
+          <input id="gameCode" maxlength="12" placeholder="Example: FAMILY1" />
+        </label>
+        <div class="grid two">
+          <button id="bankerLoginBtn" class="banker-btn">Banker</button>
+          <button id="playerLoginBtn" class="primary">Player</button>
+        </div>
+        <hr />
+        <h3>Create new game</h3>
+        <p class="help">Only create the game code and banker PIN here. Players will join with this code and create their own name, PIN, character, and colour.</p>
+        <label>New game code
+          <input id="newGameCode" maxlength="12" placeholder="Example: GAME2026" />
+        </label>
+        <label>Banker PIN
+          <input id="newBankerPin" type="password" placeholder="Create banker PIN" />
+        </label>
+        <label>Starting money per player
+          <input id="startingMoney" type="number" value="1500" />
+        </label>
+        <button id="createGameBtn" class="primary wide">Create game code</button>
+      </section>
+
+      <section id="loginCard" class="card hidden">
+        <button class="ghost backBtn">← Back</button>
+        <h2 id="loginTitle">Login</h2>
+        <div id="bankerLoginPanel">
+          <label>Banker PIN
+            <input id="bankerPinInput" type="password" inputmode="numeric" />
+          </label>
+          <button id="confirmBankerLoginBtn" class="banker-btn wide">Open banker desk</button>
+        </div>
+
+        <div id="playerLoginPanel" class="hidden">
+          <div class="tabbar">
+            <button id="showNewPlayerTab" class="tab active">New player</button>
+            <button id="showReturningPlayerTab" class="tab">Return</button>
+          </div>
+
+          <div id="newPlayerTab">
+            <label>Your name
+              <input id="joinName" maxlength="24" placeholder="Example: Manjot" />
+            </label>
+            <label>Create your PIN
+              <input id="joinPin" type="password" inputmode="numeric" placeholder="Example: 1234" />
+            </label>
+            <label>Choose your character</label>
+            <div id="characterChoices" class="choice-grid"></div>
+            <label>Choose your colour</label>
+            <div id="colourChoices" class="colour-grid"></div>
+            <button id="joinGameBtn" class="primary wide">Join game</button>
+          </div>
+
+          <div id="returningPlayerTab" class="hidden">
+            <label>Player
+              <select id="returningPlayerSelect"></select>
+            </label>
+            <label>Your PIN
+              <input id="returningPin" type="password" inputmode="numeric" />
+            </label>
+            <button id="confirmPlayerLoginBtn" class="primary wide">Open my wallet</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="bankerCard" class="card hidden desk-card banker-desk">
+        <div class="top-row">
+          <div>
+            <p class="eyebrow">Banker desk</p>
+            <h2 id="bankerGameName">Game</h2>
+          </div>
+          <button class="ghost logoutBtn">Logout</button>
+        </div>
+        <div class="bank-panel">
+          <div>
+            <span>Bank identity</span>
+            <strong>Green Treasury</strong>
+          </div>
+          <div class="bank-chip">🏦</div>
+        </div>
+        <div class="tabbar desk-tabs">
+          <button class="desk-tab active" data-tab="bankPayTab">Move money</button>
+          <button class="desk-tab" data-tab="bankPlayersTab">Players</button>
+          <button class="desk-tab" data-tab="bankHistoryTab">History</button>
+        </div>
+
+        <div id="bankPayTab" class="desk-section">
+          <div class="grid two">
+            <label>From
+              <select id="fromSelect"></select>
+            </label>
+            <label>To
+              <select id="toSelect"></select>
+            </label>
+          </div>
+          <label>Amount
+            <input id="amountInput" type="number" min="1" placeholder="200" />
+          </label>
+          <label>Note
+            <input id="noteInput" placeholder="Rent, salary, tax, property, etc." />
+          </label>
+          <button id="sendBankerPaymentBtn" class="banker-btn wide">Record payment</button>
+          <div class="quick-actions">
+            <button data-action="salary" class="secondary">$200 GO salary</button>
+            <button data-action="bankfee" class="secondary">Tax / fee</button>
+            <button data-action="bankpay" class="secondary">Bank pays</button>
+          </div>
+        </div>
+
+        <div id="bankPlayersTab" class="desk-section hidden">
+          <h3>All players</h3>
+          <div id="bankerBalances" class="balance-list"></div>
+          <button id="resetGameBtn" class="danger wide">Reset balances + history</button>
+        </div>
+
+        <div id="bankHistoryTab" class="desk-section hidden">
+          <h3>All transactions</h3>
+          <div id="bankerHistory" class="history"></div>
+        </div>
+      </section>
+
+      <section id="playerCard" class="card hidden desk-card player-desk">
+        <div class="top-row">
+          <div>
+            <p class="eyebrow dark">Player wallet</p>
+            <h2 id="playerNameTitle">Player</h2>
+          </div>
+          <button class="ghost logoutBtn">Logout</button>
+        </div>
+        <div id="playerProfile" class="profile-card"></div>
+        <div class="private-balance">
+          <span>Your Balance</span>
+          <strong id="playerBalance">$0</strong>
+        </div>
+        <div class="tabbar desk-tabs">
+          <button class="player-tab active" data-tab="playerPayTab">Pay</button>
+          <button class="player-tab" data-tab="playerHistoryTab">Transactions</button>
+          <button class="player-tab" data-tab="playerInfoTab">Game</button>
+        </div>
+
+        <div id="playerPayTab" class="desk-section">
+          <p class="help">You can pay another player or the bank. You cannot create money from the bank unless you are the banker.</p>
+          <label>Pay to
+            <select id="playerToSelect"></select>
+          </label>
+          <label>Amount
+            <input id="playerAmountInput" type="number" min="1" placeholder="50" />
+          </label>
+          <label>Note
+            <input id="playerNoteInput" placeholder="Rent, property, tax, trade, etc." />
+          </label>
+          <button id="sendPlayerPaymentBtn" class="primary wide">Send payment</button>
+        </div>
+
+        <div id="playerHistoryTab" class="desk-section hidden">
+          <div class="filter-row">
+            <button id="filterMineBtn" class="filter active">My transactions</button>
+            <button id="filterAllBtn" class="filter">All transactions</button>
+          </div>
+          <div id="playerHistory" class="history"></div>
+        </div>
+
+        <div id="playerInfoTab" class="desk-section hidden">
+          <div class="notice">Use game code <strong id="playerGameCode"></strong> to log back in anytime. Select “Return” and enter your PIN.</div>
+          <div id="playerList" class="mini-player-list"></div>
+        </div>
+      </section>
+
+      <section id="toast" class="toast hidden"></section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js"></script>
+</body>
+</html>
